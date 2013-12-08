@@ -1,0 +1,163 @@
+<html>
+<head>
+  <title></title>
+  <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+  <script type="text/javascript" src="d3.min.js"></script>
+  <script type="text/javascript" src="data.js"></script>
+  <script type="text/javascript">
+    var colors = ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf", "#9edae5","#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2", "#31a354", "#74c476", "#a1d99b", "#c7e9c0", "#756bb1", "#9e9ac8", "#bcbddc", "#dadaeb", "#636363", "#969696", "#bdbdbd", "#d9d9d9"];
+
+    // var data_poem = [{AE1:13,AE2:45},{AE3:2,AE4:5}];
+    // var data_post = [{AE1:23,AE2:77},{AE3:2,AE4:5}];
+    var color_assignments = {}
+    var ctr_1 = 0;
+    var ctr_2 = 0;
+    $(document).ready(function(){
+      assign_colors();
+      append_colors();
+      append_visuals(data_poem,"poems",true);
+      append_visuals(data_post,"posts");
+      console.log(ctr_1);
+      console.log(ctr_2);
+      console.log(ctr_1/ctr_2);
+    });
+
+    function assign_colors(){
+      var color_index = 0;
+      for(var i=0; i<data_poem.length;i++){
+        for(sound in data_poem[i]){
+          if(sound == "text" || sound == "pron")
+            continue;
+          if(!color_assignments[sound]){
+            color_assignments[sound] = colors[color_index];
+            color_index ++;
+          }
+        }
+      }
+      for(var i=0; i<data_post.length;i++){
+        for(sound in data_post[i]){
+          if(sound == "text" || sound == "pron")
+            continue;
+          if(!color_assignments[sound]){
+            color_assignments[sound] = colors[color_index];
+            color_index ++;
+          }
+        }
+      }
+    }
+    function append_colors(){
+      for(c in color_assignments){
+        $("#colors").append("<div data-color='"+c+"' class='color_block' style='background:"+color_assignments[c]+"'>"+c+"</div>");
+      }
+      $(".color_block").hover(function(){
+        var selected = ($(this).data("color"));
+        $(".bit").removeClass("selected");
+        $("."+selected).addClass("selected");
+      },function(){
+
+      });
+    }
+    function append_visuals(data,target,exp){
+      for(var i=0; i<data.length;i++){
+
+        poem_str = "<div class='bar_wrapper'>"
+        //poem_str += "<div class='text'>"+data[i]["text"]+"</div><div class='pron'>"+data[i]["pron"]+"</div>"
+        poem_str += "<div class='bar'>"
+        total_count = 0;
+
+        if(exp){
+          if(data[i]["IH1"] > data[i]["AE1"]){
+            ctr_1 += 1;
+          }else{
+            ctr_2 += 1;
+          }
+        }
+
+        for(sound in data[i]){
+          if(sound == "text" || sound == "pron")
+            continue;
+          total_count+= data[i][sound];
+        }
+        for(sound in data[i]){
+          if(sound == "text" || sound == "pron")
+            continue;
+          poem_str+= "<div class='bit "+sound+"' style='background:"+color_assignments[sound]+";height:"+ 100*data[i][sound]/total_count+ "%'></div>"
+        }
+        poem_str += "</div></div>"
+
+        $("#"+target).append(poem_str);
+      }
+    }
+  </script>
+  <style type="text/css">
+    body{
+      font-family: Arial;
+      font-size: 13px;
+    }
+    .bar_wrapper{
+      display:inline-block;
+    }
+    .pron{
+      font-size: 11px;
+      padding: 5px;
+    }
+    .bar{
+      vertical-align: bottom;
+      display:inline-block;
+      width: 220px;
+      height: 150px;
+      margin-bottom: 2px;
+      margin-top: -80px;
+    }
+    .bit{
+      display: inline-block;
+      width: 10px;
+      vertical-align: top;
+
+    }
+    .selected{
+      border: 6px solid black;
+    }
+    #colors{
+      margin: 10px 0;
+      position: fixed;
+      top: 20px;
+      background: #292929;
+      padding:20px;
+    }
+    .color_block{
+      display: inline-block;
+      padding: 8px;
+      color: white;
+      cursor: default;
+    }
+    #poems{
+      width:45%;
+      display:inline-block;
+      vertical-align: top;
+      padding:20px;
+    }
+    #posts{
+      width:45%;
+      display:inline-block;
+      vertical-align: top;
+      background: #eee;
+      padding:20px;
+    }
+    #container{
+      margin-top: 150px;
+    }
+  </style>
+</head>
+<body>
+  <div id="colors"></div>
+  <div id="container">
+    <div id="poems">
+      <h2>Poems</h2>
+    </div>
+    <div id="posts">
+      <h2>Posts</h2>
+    </div>
+  </div>
+</body>
+</html>
